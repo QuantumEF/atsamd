@@ -35,6 +35,11 @@
       "build": "cargo build --examples --all-features",
       "target": "thumbv6m-none-eabi"
     },
+    "arduino_mkrnb1500": {
+      "tier": 2,
+      "build": "cargo build --examples --all-features",
+      "target": "thumbv6m-none-eabi"
+    },
     "arduino_mkrvidor4000": {
       "tier": 2,
       "build": "cargo build --examples --all-features",
