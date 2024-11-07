@@ -1,115 +1,187 @@
 #![no_std]
 
-pub use atsamd_hal as hal;
-pub use hal::common::*;
-pub use hal::pac;
-
-#[cfg(feature = "rt")]
-use cortex_m_rt;
 #[cfg(feature = "rt")]
 pub use cortex_m_rt::entry;
 
-use hal::prelude::*;
-use hal::*;
+pub use atsamd_hal as hal;
+pub use hal::pac;
 
-use gpio::{Floating, Input, Port};
+/// Definitions related to pins and pin aliases
+pub mod pins {
+    use super::hal;
 
-// The docs could be further improved with details of the specific channels etc
-define_pins!(
-    /// Maps the pins to their arduino names and the numbers printed on the board.
-    /// Information from: <https://github.com/arduino/ArduinoCore-samd/blob/master/variants/mkrvidor4000/variant.cpp>
-    struct Pins,
-    pac: pac,
+    // Use the `bsp_pins!` macro to define all the pins
+    hal::bsp_pins!(
+        PA22 {
+            /// Digital 0: PWM, TC
+            name: d0
+        }
+        PA23 {
+            /// Digital 1: PWM, TC
+            name: d1
+        }
+        PA10 {
+            /// Digital 2: PWM, TCC, ADC
+            name: d2
+        }
+        PA11 {
+            /// Digital 3: PWM, TCC, ADC
+            name: d3
+        }
+        PB10 {
+            /// Digital 4: PWM, TC
+            name: d4
+        }
+        PB11 {
+            /// Digital 5: PWM, TC
+            name: d5
+        }
+        PA20 {
+            /// Digital 6: PWM, TCC
+            name: d6
+        }
+        PA21 {
+            /// Digital 7: PWM, TCC
+            name: d7
+        }
+        PA16 {
+            /// SPI MOSI: PWM, TCC
+            name: mosi
+        }
+        PA17 {
+            /// SPI SCK
+            name: sck
+        }
+        PA19 {
+            /// SPI MISO: PWM, TC
+            name: miso
+        }
+        PA08 {
+            /// I2C SDA
+            name: sda
+            aliases: {
+                AlternateC: Sda
+            }
+        }
+        PA09 {
+            /// I2C SCL
+            name: scl
+            aliases: {
+                AlternateC: Scl
+            }
+        }
+        PB23 {
+            /// RX
+            name: rx
+            aliases: {
+                AlternateC: UartRx
+            }
+        }
+        PB22 {
+            /// TX
+            name: tx
+            aliases: {
+                AlternateC: UartTx
+            }
+        }
+        PA02 {
+            /// Analog 0: DAC
+            name: a0
+        }
+        PB02 {
+            /// Analog 1
+            name: a1
+        }
+        PB03 {
+            /// Analog 2
+            name: a2
+        }
+        PA04 {
+            /// Analog 3: PWM, TCC
+            name: a3
+        }
+        PA05 {
+            /// Analog 4: PWM, TCC
+            name: a4
+        }
+        PA06 {
+            /// Analog 5
+            name: a5
+        }
+        PA07 {
+            /// Analog 6
+            name: a6
+        }
+        PA24 {
+            /// USB D-
+            name: usb_n
+            aliases: {
+                AlternateG: UsbDm
+            }
+        }
+        PA25 {
+            /// USB D+
+            name: usb_p
+            aliases: {
+                AlternateG: UsbDp
+            }
+        }
+        PA18 {
+            /// USB ID
+            name: usb_id
+        }
+               // Note: you had a comment about this pin also connecting to usbid.
+        // Consider adjusting or validating this based on your needs.
+        // PA18 {
+        //     /// PMIC OTG (also connects to USB ID)
+        //     name: pmic_otg
+        // }
+        PA03 {
+            /// AREF
+            name: aref
+        }
+        PA12 {
+            /// GSM TX
+            name: gsm_tx
+        }
+        PA13 {
+            /// GSM RX
+            name: gsm_rx
+        }
+        PA14 {
+            /// GSM RTS
+            name: gsm_rts
+        }
+        PA15 {
+            /// GSM CTS
+            name: gsm_cts
+        }
+        PA27 {
+            /// PMIC IRQ
+            name: pmic_irq
+        }
+        PB08 {
+            /// GSM Reset (active low)
+            name: gsm_reset_n
+        }
+        PB09 {
+            /// PMIC BAT
+            name: adc_battery
+        }
+        PA28 {
+            /// GSM DTR
+            name: gsm_dtr
+        }
+        PA00 {
+            /// 32kHz crystal input
+            name: xin32
+        }
+        PA01 {
+            /// 32kHz crystal output
+            name: xout32
+        }
 
-    /// Digital 0: PWM, TC
-    pin d0 = a22,
+    );
+}
 
-    /// Digital 1: PWM, TC
-    pin d1 = a23,
-
-    /// Digital 2: PWM, TCC, ADC
-    pin d2 = a10,
-
-    /// Digital 3: PWM, TCC, ADC
-    pin d3 = a11,
-
-    /// Digital 4: PWM, TC
-    pin d4 = b10,
-
-    /// Digital 5: PWM, TC
-    pin d5 = b11,
-
-    //TODO Check LED?
-    /// Digital 6: PWM, TCC
-    pin d6 = a20,
-
-    /// Digital 7: PWM, TCC
-    pin d7 = a21,
-
-    /// SPI MOSI: PWM, TCC
-    pin mosi = a16,
-
-    /// SPI SCK
-    pin sck = a17,
-
-    /// SPI MISO: PWM, TC
-    pin miso = a19,
-
-    /// SDA
-    pin sda = a8,
-    /// SCL
-    pin scl = a9,
-
-    /// RX
-    pin rx = b23,
-
-    /// TX
-    pin tx = b22,
-
-    /// Analog 0: DAC
-    pin a0 = a2,
-
-    /// Analog 1
-    pin a1 = b2,
-
-    /// Analog 2
-    pin a2 = b3,
-
-    /// Analog 3: PWM, TCC
-    pin a3 = a4,
-
-    /// Analog 4: PWM, TCC
-    pin a4 = a5,
-
-    /// Analog 5
-    pin a5 = a6,
-
-    /// Analog 6
-    pin a6 = a7,
-
-    pin usb_n = a24,
-    pin usb_p = a25,
-    pin usb_id = a18,
-
-    pin aref = a3,
-
-    pin gsm_tx = a12,
-    pin gsm_rx = a13,
-    pin gsm_rts = a14,
-    pin gsm_cts = a15,
-    pin pmic_irq = a27,
-    pin gsm_reset_n = b8,
-    /// PMIC_BAT
-    pin adc_battery = b9,
-
-    // TODO or gsm_pwr?
-    pin gsm_dtr = a28,
-
-    pin xin32 = a0,
-    pin xout32 = a1,
-
-
-    // TODO: also connects to usbid
-    // Not exposed in arduino api?
-    pin pmic_otg = a18,
-);
+pub use pins::*;
