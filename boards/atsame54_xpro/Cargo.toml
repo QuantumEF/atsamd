@@ -23,7 +23,7 @@ features = ["critical-section-single-core"]
 
 [dependencies.atsamd-hal]
 path = "../../hal"
-version = "0.18.1"
+version = "0.18.2"
 default-features = false
 
 [dependencies.usb-device]
@@ -39,9 +39,16 @@ rtt-target = { version = "0.3", features = ["cortex-m"] }
 
 [features]
 default = ["rt", "atsamd-hal/same54p"]
+dma = ["atsamd-hal/dma"]
 rt = ["cortex-m-rt", "atsamd-hal/same54p-rt"]
 usb = ["atsamd-hal/usb", "usb-device"]
 can = ["atsamd-hal/can"]
+
+[[example]]
+name = "blinky_basic"
+
+[[example]]
+name = "blinky_rtic"
 
 [[example]]
 name = "mcan"

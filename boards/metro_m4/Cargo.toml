@@ -20,7 +20,7 @@ optional = true
 
 [dependencies.atsamd-hal]
 path = "../../hal"
-version = "0.18.1"
+version = "0.18.2"
 default-features = false
 
 [dependencies.usb-device]
@@ -75,9 +75,6 @@ name = "pwm"
 name = "serial"
 
 [[example]]
-name = "spi"
-
-[[example]]
 name = "timer"
 
 [[example]]
@@ -92,4 +89,8 @@ required-features = ["usb"]
 
 [[example]]
 name = "i2c"
+required-features = ["dma"]
+
+[[example]]
+name = "spi"
 required-features = ["dma"]

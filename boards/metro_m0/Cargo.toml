@@ -24,7 +24,7 @@ features = ["critical-section-single-core"]
 
 [dependencies.atsamd-hal]
 path = "../../hal"
-version = "0.18.1"
+version = "0.18.2"
 default-features = false
 
 [dependencies.usb-device]
@@ -62,4 +62,8 @@ name = "blinky_basic"
 
 [[example]]
 name = "i2c"
+required-features = ["dma"]
+
+[[example]]
+name = "spi"
 required-features = ["dma"]
