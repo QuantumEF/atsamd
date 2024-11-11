@@ -4,7 +4,16 @@
 pub use cortex_m_rt::entry;
 
 pub use atsamd_hal as hal;
+use hal::clock::GenericClockController;
 pub use hal::pac;
+use hal::sercom::uart::{self, BaudMode, Oversampling};
+use hal::time::Hertz;
+
+hal::bsp_peripherals!(
+    // SERCOM0 { UartSercom }
+    SERCOM2 { GsmSercom } // SERCOM3 { I2cSercom }
+                          // SERCOM4 { SpiSercom }
+);
 
 /// Definitions related to pins and pin aliases
 pub mod pins {
@@ -143,10 +152,16 @@ pub mod pins {
         PA12 {
             /// GSM TX
             name: gsm_tx
+            aliases: {
+                AlternateC: GsmUartTx
+            }
         }
         PA13 {
             /// GSM RX
             name: gsm_rx
+            aliases: {
+                AlternateC: GsmUartRx
+            }
         }
         PA14 {
             /// GSM RTS
@@ -182,6 +197,28 @@ pub mod pins {
         }
 
     );
+}
+
+pub type GsmUartPads = uart::Pads<GsmSercom, GsmUartRx, GsmUartTx>;
+pub type GsmUart = uart::Uart<uart::Config<GsmUartPads>, uart::Duplex>;
+
+/// Convenience for setting up the labelled RX, TX pins to
+/// operate as a UART device running at the specified baud.
+pub fn gsm_uart(
+    clocks: &mut GenericClockController,
+    baud: impl Into<Hertz>,
+    sercom: GsmSercom,
+    pm: &mut pac::PM,
+    uart_rx: impl Into<GsmUartRx>,
+    uart_tx: impl Into<GsmUartTx>,
+) -> GsmUart {
+    let gclk0 = clocks.gclk0();
+    let clock = &clocks.sercom0_core(&gclk0).unwrap();
+    let baud = baud.into();
+    let pads = uart::Pads::default().rx(uart_rx.into()).tx(uart_tx.into());
+    uart::Config::new(pm, sercom, pads, clock.freq())
+        .baud(baud, BaudMode::Fractional(Oversampling::Bits16))
+        .enable()
 }
 
 pub use pins::*;
