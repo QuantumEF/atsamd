@@ -10,9 +10,10 @@ use hal::sercom::uart::{self, BaudMode, Oversampling};
 use hal::time::Hertz;
 
 hal::bsp_peripherals!(
-    // SERCOM0 { UartSercom }
-    SERCOM2 { GsmSercom } // SERCOM3 { I2cSercom }
-                          // SERCOM4 { SpiSercom }
+    SERCOM0 { I2cOptSercom }
+    SERCOM1 { SpiSercom }
+    SERCOM2 { GsmUartSercom }
+    SERCOM3 { UartSercom }
 );
 
 /// Definitions related to pins and pin aliases
@@ -22,103 +23,90 @@ pub mod pins {
     // Use the `bsp_pins!` macro to define all the pins
     hal::bsp_pins!(
         PA22 {
-            /// Digital 0: PWM, TC
             name: d0
         }
         PA23 {
-            /// Digital 1: PWM, TC
             name: d1
         }
         PA10 {
-            /// Digital 2: PWM, TCC, ADC
             name: d2
         }
         PA11 {
-            /// Digital 3: PWM, TCC, ADC
             name: d3
         }
         PB10 {
-            /// Digital 4: PWM, TC
             name: d4
         }
         PB11 {
-            /// Digital 5: PWM, TC
             name: d5
         }
         PA20 {
-            /// Digital 6: PWM, TCC
             name: d6
         }
         PA21 {
-            /// Digital 7: PWM, TCC
             name: d7
         }
         PA16 {
-            /// SPI MOSI: PWM, TCC
-            name: mosi
+            name: d8
+            aliases: {
+                AlternateC: COPI
+            }
         }
         PA17 {
-            /// SPI SCK
-            name: sck
+            name: d9
+            aliases: {
+                AlternateC: Sck
+            }
         }
         PA19 {
-            /// SPI MISO: PWM, TC
-            name: miso
+            name: d10
+            aliases: {
+                AlternateC: CIPO
+            }
         }
         PA08 {
-            /// I2C SDA
-            name: sda
+            name: d11
             aliases: {
                 AlternateC: Sda
             }
         }
         PA09 {
-            /// I2C SCL
-            name: scl
+            name: d12
             aliases: {
                 AlternateC: Scl
             }
         }
         PB23 {
-            /// RX
-            name: rx
+            name: d13
             aliases: {
                 AlternateC: UartRx
             }
         }
         PB22 {
-            /// TX
-            name: tx
+            name: d14
             aliases: {
                 AlternateC: UartTx
             }
         }
         PA02 {
-            /// Analog 0: DAC
             name: a0
         }
         PB02 {
-            /// Analog 1
             name: a1
         }
         PB03 {
-            /// Analog 2
             name: a2
         }
         PA04 {
-            /// Analog 3: PWM, TCC
             name: a3
         }
         PA05 {
-            /// Analog 4: PWM, TCC
             name: a4
         }
         PA06 {
-            /// Analog 5
             name: a5
         }
         PA07 {
-            /// Analog 6
             name: a6
         }
         PA24 {
@@ -199,7 +187,7 @@ pub mod pins {
     );
 }
 
-pub type GsmUartPads = uart::Pads<GsmSercom, GsmUartRx, GsmUartTx>;
+pub type GsmUartPads = uart::Pads<GsmUartSercom, GsmUartRx, GsmUartTx>;
 pub type GsmUart = uart::Uart<uart::Config<GsmUartPads>, uart::Duplex>;
 
 /// Convenience for setting up the labelled RX, TX pins to
@@ -207,7 +195,7 @@ pub type GsmUart = uart::Uart<uart::Config<GsmUartPads>, uart::Duplex>;
 pub fn gsm_uart(
     clocks: &mut GenericClockController,
     baud: impl Into<Hertz>,
-    sercom: GsmSercom,
+    sercom: GsmUartSercom,
     pm: &mut pac::PM,
     uart_rx: impl Into<GsmUartRx>,
     uart_tx: impl Into<GsmUartTx>,
