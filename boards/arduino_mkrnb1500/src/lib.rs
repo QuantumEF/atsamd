@@ -3,9 +3,9 @@
 #[cfg(feature = "rt")]
 pub use cortex_m_rt::entry;
 
-pub use atsamd_hal as hal;
+pub use atsamd_hal as hal; // Hardware Abstraction Layer
 use hal::clock::GenericClockController;
-pub use hal::pac;
+pub use hal::pac; // Peripheral Access Crate
 use hal::sercom::uart::{self, BaudMode, Oversampling};
 use hal::time::Hertz;
 
