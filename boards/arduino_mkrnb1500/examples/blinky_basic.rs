@@ -26,12 +26,12 @@ fn main() -> ! {
     let core = CorePeripherals::take().unwrap(); // Similar ^ but something to do with interrupts?
 
     let mut clocks = GenericClockController::with_external_32kosc(
-        peripherals.GCLK,
-        &mut peripherals.PM,
-        &mut peripherals.SYSCTRL,
-        &mut peripherals.NVMCTRL,
+        peripherals.gclk,
+        &mut peripherals.pm,
+        &mut peripherals.sysctrl,
+        &mut peripherals.nvmctrl,
     ); // Inits clocks of system
-    let pins = bsp::Pins::new(peripherals.PORT); // Creates an alias for bsp::Pins
+    let pins = bsp::Pins::new(peripherals.port); // Creates an alias for bsp::Pins
     let mut led = pins.d6.into_push_pull_output(); // Creates LED pin like pinMode led = OUTPUT;
     let mut delay = Delay::new(core.SYST, &mut clocks); // Creates a new delay instance out of the system timer
 
