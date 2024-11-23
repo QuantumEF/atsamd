@@ -15,9 +15,9 @@ version = "0.7"
 optional = true
 
 [dependencies.atsamd-hal]
-version = "0.15"
+version = "0.18.2"
 default-features = false
-features = ["samd21g", "library"]
+features = ["samd21g"]
 
 [dev-dependencies]
 panic-halt = "0.2"
@@ -27,7 +27,7 @@ panic-semihosting = "0.5"
 # ask the HAL to enable atsamd21g support
 default = ["rt", "atsamd-hal/samd21g"]
 rt = ["cortex-m-rt", "atsamd-hal/samd21g-rt"]
-unproven = ["atsamd-hal/unproven"]
+# unproven = ["atsamd-hal/unproven"]
 usb = ["atsamd-hal/usb"]
 use_semihosting = []
 
