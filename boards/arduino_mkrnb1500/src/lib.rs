@@ -10,10 +10,10 @@ use hal::sercom::uart::{self, BaudMode, Oversampling};
 use hal::time::Hertz;
 
 hal::bsp_peripherals!(
-    SERCOM0 { I2cOptSercom }
-    SERCOM1 { SpiSercom }
-    SERCOM2 { GsmUartSercom }
-    SERCOM3 { UartSercom }
+    Sercom0 { I2cOptSercom }
+    Sercom1 { SpiSercom }
+    Sercom2 { GsmUartSercom }
+    Sercom3 { UartSercom }
 );
 
 /// Definitions related to pins and pin aliases
@@ -196,7 +196,7 @@ pub fn gsm_uart(
     clocks: &mut GenericClockController,
     baud: impl Into<Hertz>,
     sercom: GsmUartSercom,
-    pm: &mut pac::PM,
+    pm: &mut pac::Pm,
     uart_rx: impl Into<GsmUartRx>,
     uart_tx: impl Into<GsmUartTx>,
 ) -> GsmUart {
