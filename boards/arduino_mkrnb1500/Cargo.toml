@@ -20,6 +20,10 @@ default-features = false
 features = ["samd21g"]
 
 [dev-dependencies]
+atat = "0.23.0"
+atat_derive = "0.23.0"
+cortex-m = { version = "0.7.6", features = ["critical-section-single-core"] }
+critical-section = { version = "1.1" }
 panic-halt = "0.2"
 panic-semihosting = "0.5"
 
@@ -34,3 +38,9 @@ use_semihosting = []
 # for cargo flash
 [package.metadata]
 chip = "ATSAMD21G18A"
+
+[[example]]
+name = "blinky_basic"
+
+[[example]]
+name = "sara_uart_basic"
