@@ -199,10 +199,10 @@
 //! use atsamd_hal::dmac::channel::{AnyChannel, Ready};
 //! use atsand_hal::sercom::i2c::{I2c, AnyConfig, Error};
 //! use atsamd_hal::embedded_hal::i2c::I2c;
-//! fn i2c_send_with_dma<A: AnyConfig, C: AnyChannel<Status = Ready>>(i2c: I2c<A>, channel: C, bytes: &[u8]) -> Result<(), Error>{
+//! fn i2c_write_with_dma<A: AnyConfig, C: AnyChannel<Status = Ready>>(i2c: I2c<A>, channel: C, bytes: &[u8]) -> Result<(), Error>{
 //!     // Attach a DMA channel
 //!     let i2c = i2c.with_dma_channel(channel);
-//!     i2c.send(0x54, bytes)?;
+//!     i2c.write(0x54, bytes)?;
 //! }
 //! ```
 //!
@@ -214,6 +214,13 @@
 //!   adjacent write/read operations of the same type; the total number of bytes
 //!   across all adjacent operations must not exceed 256. If you need continuous
 //!   transfers of 256 bytes or more, use the non-DMA [`I2c`] implementations.
+//!
+//! * When using [`I2c::transaction`] or [`I2c::write_read`], the
+//!   [`embedded_hal::i2c::I2c`] specification mandates that a REPEATED START
+//!   (instead of a STOP+START) is sent between transactions of a different type
+//!   (read/write). Unfortunately, in DMA mode, the hardware is only capable of
+//!   sending STOP+START. If you absolutely need repeated starts, the only
+//!   workaround is to use the I2C without DMA.
 //!
 //! * Using [`I2c::transaction`] consumes significantly more memory than the
 //!   other methods provided by [`embedded_hal::i2c::I2c`] (at least 256 bytes
@@ -239,6 +246,7 @@
 //! [`PinMode`]: crate::gpio::pin::PinMode
 //! [`embedded_hal::i2c::I2c`]: crate::ehal::i2c::I2c
 //! [`I2c::transaction`]: crate::ehal::i2c::I2c::transaction
+//! [`I2c::write_read`]: crate::ehal::i2c::I2c::write_read
 
 use atsamd_hal_macros::hal_module;
 
@@ -281,7 +289,7 @@ pub enum InactiveTimeout {
 /// Abstraction over a I2C peripheral, allowing to perform I2C transactions.
 pub struct I2c<C: AnyConfig, D = crate::typelevel::NoneT> {
     config: C,
-    dma_channel: D,
+    _dma_channel: D,
 }
 
 impl<C: AnyConfig, D> I2c<C, D> {
@@ -430,7 +438,7 @@ impl<C: AnyConfig> I2c<C> {
     ) -> I2c<C, Chan> {
         I2c {
             config: self.config,
-            dma_channel: channel,
+            _dma_channel: channel,
         }
     }
 }
@@ -442,9 +450,9 @@ impl<C: AnyConfig, D: crate::dmac::AnyChannel<Status = crate::dmac::Ready>> I2c<
         (
             I2c {
                 config: self.config,
-                dma_channel: crate::typelevel::NoneT,
+                _dma_channel: crate::typelevel::NoneT,
             },
-            self.dma_channel,
+            self._dma_channel,
         )
     }
 }
