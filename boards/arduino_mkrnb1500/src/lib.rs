@@ -204,7 +204,7 @@ pub fn gsm_uart(
     uart_tx: impl Into<GsmUartTx>,
 ) -> GsmUart {
     let gclk0 = clocks.gclk0();
-    let clock = &clocks.sercom0_core(&gclk0).unwrap();
+    let clock = &clocks.sercom2_core(&gclk0).unwrap();
     let baud = baud.into();
     let pads = uart::Pads::default().rx(uart_rx.into()).tx(uart_tx.into());
     uart::Config::new(pm, sercom, pads, clock.freq())
