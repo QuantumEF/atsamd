@@ -9,6 +9,9 @@ pub use hal::pac; // Peripheral Access Crate
 use hal::sercom::uart::{self, BaudMode, Oversampling};
 use hal::time::Hertz;
 
+#[cfg(feature = "usb")]
+use hal::usb::{usb_device::bus::UsbBusAllocator, UsbBus};
+
 hal::bsp_peripherals!(
     Sercom0 { I2cOptSercom }
     Sercom1 { SpiSercom }
