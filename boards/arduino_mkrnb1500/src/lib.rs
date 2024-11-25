@@ -210,3 +210,18 @@ pub fn gsm_uart(
 }
 
 pub use pins::*;
+
+#[cfg(feature = "usb")]
+/// Convenience function for setting up USB
+pub fn usb_allocator(
+    usb: pac::Usb,
+    clocks: &mut GenericClockController,
+    pm: &mut pac::Pm,
+    dm: impl Into<UsbDm>,
+    dp: impl Into<UsbDp>,
+) -> UsbBusAllocator<UsbBus> {
+    let gclk0 = clocks.gclk0();
+    let clock = &clocks.usb(&gclk0).unwrap();
+    let (dm, dp) = (dm.into(), dp.into());
+    UsbBusAllocator::new(UsbBus::new(clock, pm, dm, dp, usb))
+}
