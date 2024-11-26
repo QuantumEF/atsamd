@@ -175,8 +175,7 @@ pub mod pins {
             name: adc_battery
         }
         PA28 {
-            /// GSM DTR
-            name: gsm_dtr
+            name: sara_pwr_on
         }
         PA00 {
             /// 32kHz crystal input
