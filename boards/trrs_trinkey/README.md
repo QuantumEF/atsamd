@@ -1,9 +1,7 @@
-# TODO
+# Adafruit TRRS Trinkey Board Support Crate
 
-# Adafruit Feather M0 Board Support Crate
-
-This crate provides a type-safe API for working with the [Adafruit Feather M0
-board](https://www.adafruit.com/product/2772).
+This crate provides a type-safe API for working with the [Adafruit TRRS Trinkey
+board](https://www.adafruit.com/product/5954).
 
 ## Prerequisites
 
@@ -12,23 +10,22 @@ board](https://www.adafruit.com/product/2772).
 
 ## Uploading an example
 
+NOTE: `cargo-hf2` does not seem to work. It will require the following PR: https://github.com/jacobrosenthal/hf2-rs/pull/49
+
 Check out the repository for examples:
 
-https://github.com/atsamd-rs/atsamd/tree/master/boards/feather_m0/examples
+https://github.com/atsamd-rs/atsamd/tree/master/boards/trrs_trinkey/examples
 
-- Be in this directory `cd boards/feather_m0`
+- Be in this directory `cd boards/trrs_trinkey`
 - Put your device in bootloader mode usually by hitting the reset button twice.
 - Build and upload in one step
 
 ```
-$ cargo hf2 --release --example blinky_basic
-    Finished release [optimized + debuginfo] target(s) in 0.19s
+$ cargo hf2 --features leds --release --example blinky_basic
+    Finished `release` profile [optimized + debuginfo] target(s) in 0.06s
     Searching for a connected device with known vid/pid pair.
-    Trying  Ok(Some("Adafruit Industries")) Ok(Some("PyBadge"))
-    Flashing "/Users/User/atsamd/boards/feather_m0/target/thumbv7em-none-eabihf/release/examples/blinky_basic"
-    Finished in 0.079s
+    Trying  Ok(Some("Adafruit Industries")) Ok(Some("TRRS Trinkey M0"))
+    Flashing "/home/quantum_p/LocalDocs/atsamd/target/thumbv6m-none-eabi/release/examples/blinky_basic"
+    Finished in 0.123s
 $
 ```
-
-Note that some older Feather M0 boards do not come with support for HF2. For these boards,
-you can upload using the `bossa` tool as described in the [atsamd crate documentation](https://github.com/atsamd-rs/atsamd#getting-code-onto-the-device-gemma-m0).
