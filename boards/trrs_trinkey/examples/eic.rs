@@ -1,47 +1,90 @@
+//! Uses an external interrupt to blink an LED.
+//!
+//! You need to connect a button between D12 and ground. Each time the button
+//! is pressed, the LED will count the total number of button presses so far.
 #![no_std]
 #![no_main]
 
-use bsp::hal;
-/// This example is intended to be used with a pushbutton connected between D0
-/// and ground.  The LED should toggle when the button is pressed (perhaps more
-/// than once due to the lack of debouncing).
+#[cfg(not(feature = "use_semihosting"))]
 use panic_halt as _;
-use trinket_m0 as bsp;
+#[cfg(feature = "use_semihosting")]
+use panic_semihosting as _;
+
+use bsp::hal;
+use bsp::pac;
+use feather_m0 as bsp;
 
 use bsp::entry;
 use hal::clock::GenericClockController;
-use hal::eic::{pin::Sense, EIC};
-use hal::pac::{CorePeripherals, Peripherals};
+use hal::delay::Delay;
+use hal::eic::{Eic, Sense};
+use hal::gpio::{Pin, PullUpInterrupt};
 use hal::prelude::*;
+use pac::{interrupt, CorePeripherals, Peripherals};
+
+use core::sync::atomic::{AtomicUsize, Ordering};
+
+use cortex_m::peripheral::NVIC;
+
+static COUNTER: AtomicUsize = AtomicUsize::new(0);
 
 #[entry]
 fn main() -> ! {
     let mut peripherals = Peripherals::take().unwrap();
-    let _core = CorePeripherals::take().unwrap();
-
-    let mut clocks = GenericClockController::with_internal_32kosc(
-        peripherals.GCLK,
-        &mut peripherals.PM,
-        &mut peripherals.SYSCTRL,
-        &mut peripherals.NVMCTRL,
+    let mut core = CorePeripherals::take().unwrap();
+    let mut clocks = GenericClockController::with_external_32kosc(
+        peripherals.gclk,
+        &mut peripherals.pm,
+        &mut peripherals.sysctrl,
+        &mut peripherals.nvmctrl,
     );
-
-    let mut pins = bsp::Pins::new(peripherals.PORT);
-    let mut led = pins.d13.into_push_pull_output(&mut pins.port);
-    led.set_high().unwrap();
-
     let gclk0 = clocks.gclk0();
-    let clock = clocks.eic(&gclk0).unwrap();
-    let mut eic = EIC::init(&mut peripherals.PM, clock, peripherals.EIC);
+    let pins = bsp::Pins::new(peripherals.port);
+    let mut red_led: bsp::RedLed = pins.d13.into();
+    let mut delay = Delay::new(core.SYST, &mut clocks);
 
-    let mut d3 = pins.d3.into_pull_up_ei(&mut pins.port);
-    d3.sense(&mut eic, Sense::FALL);
-    d3.enable_interrupt(&mut eic);
+    let eic_clock = clocks.eic(&gclk0).unwrap();
+    let eic_channels = Eic::new(&mut peripherals.pm, eic_clock, peripherals.eic).split();
 
+    let button: Pin<_, PullUpInterrupt> = pins.d10.into();
+    let mut extint = eic_channels.2.with_pin(button);
+    extint.sense(Sense::Fall);
+    extint.enable_interrupt();
+
+    // Enable EIC interrupt in the NVIC
+    unsafe {
+        core.NVIC.set_priority(interrupt::EIC, 1);
+        NVIC::unmask(interrupt::EIC);
+    }
+
+    // Blink the LED once to show that we have started up.
+    red_led.set_high().unwrap();
+    delay.delay_ms(200u8);
+    red_led.set_low().unwrap();
+    delay.delay_ms(200u8);
+
+    let mut last_counter_value = COUNTER.load(Ordering::SeqCst);
     loop {
-        if d3.is_interrupt() {
-            d3.clear_interrupt();
-            led.toggle();
+        let new_counter_value = COUNTER.load(Ordering::SeqCst);
+        if last_counter_value != new_counter_value {
+            last_counter_value = new_counter_value;
+            for _ in 0..new_counter_value {
+                red_led.set_high().unwrap();
+                delay.delay_ms(200u8);
+                red_led.set_low().unwrap();
+                delay.delay_ms(200u8);
+            }
         }
     }
+}
+
+#[interrupt]
+fn EIC() {
+    // Increase the counter and clear the interrupt.
+    unsafe {
+        // Accessing registers from interrupts context is safe
+        let eic = &*pac::Eic::ptr();
+        eic.intflag().modify(|_, w| w.extint2().set_bit());
+    }
+    COUNTER.store(COUNTER.load(Ordering::SeqCst) + 1, Ordering::SeqCst);
 }

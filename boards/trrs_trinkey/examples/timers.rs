@@ -12,14 +12,16 @@ use feather_m0 as bsp;
 
 use bsp::{entry, pin_alias};
 use hal::clock::GenericClockController;
-use hal::delay::Delay;
-use hal::prelude::*;
-use pac::{CorePeripherals, Peripherals};
+use hal::ehal::digital::OutputPin;
+use hal::nb;
+use hal::time::Hertz;
+use hal::timer::TimerCounter;
+use hal::timer_traits::InterruptDrivenTimer;
+use pac::Peripherals;
 
 #[entry]
 fn main() -> ! {
     let mut peripherals = Peripherals::take().unwrap();
-    let core = CorePeripherals::take().unwrap();
     let mut clocks = GenericClockController::with_external_32kosc(
         peripherals.gclk,
         &mut peripherals.pm,
@@ -28,11 +30,21 @@ fn main() -> ! {
     );
     let pins = bsp::Pins::new(peripherals.port);
     let mut red_led: bsp::RedLed = pin_alias!(pins.red_led).into();
-    let mut delay = Delay::new(core.SYST, &mut clocks);
+
+    // gclk0 represents a configured clock using the system 48MHz oscillator
+    let gclk0 = clocks.gclk0();
+    // configure a clock for the TC4 and TC5 peripherals
+    let tc45 = &clocks.tc4_tc5(&gclk0).unwrap();
+    // instantiate a timer objec for the TC4 peripheral
+    let mut timer = TimerCounter::tc4_(tc45, peripherals.tc4, &mut peripherals.pm);
+    // start a 5Hz timer
+    timer.start(Hertz::Hz(5).into_duration());
+
+    // toggle the red LED at the frequency set by the timer
     loop {
-        delay.delay_ms(200u8);
+        nb::block!(timer.wait()).unwrap();
         red_led.set_high().unwrap();
-        delay.delay_ms(200u8);
+        nb::block!(timer.wait()).unwrap();
         red_led.set_low().unwrap();
     }
 }
