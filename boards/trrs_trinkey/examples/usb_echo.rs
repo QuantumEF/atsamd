@@ -14,7 +14,7 @@ use usbd_serial::{SerialPort, USB_CLASS_CDC};
 
 use bsp::hal;
 use bsp::pac;
-use feather_m0 as bsp;
+use trrs_trinkey as bsp;
 
 use bsp::{entry, pin_alias};
 use hal::clock::GenericClockController;
@@ -32,8 +32,20 @@ fn main() -> ! {
         &mut peripherals.sysctrl,
         &mut peripherals.nvmctrl,
     );
+
     let pins = bsp::Pins::new(peripherals.port);
-    let mut red_led: bsp::RedLed = pin_alias!(pins.red_led).into();
+
+    // Setup so an LED could be driven by being connected between the Tip and Sleeve pins.
+    // WARNING: from what I have found, the max current capability is 10mA, so it is suggested to keep the current below 7mA
+    // I do not have any guidance on how much current the IO pins can SINK.
+    // Source: https://forums.adafruit.com/viewtopic.php?t=123728, https://onlinedocs.microchip.com/oxy/GUID-22527069-B4D6-49B9-BACC-3AF1C52EB48C-en-US-20/GUID-AD9164C2-015D-4DEA-9A54-44165FBE92D0.html
+    let mut tip_pin = pins.tip.into_push_pull_output();
+    tip_pin.set_drive_strength(true);
+
+    // Configure the sleve pin to sink current (be ground)
+    let mut sleeve_pin = pins.sleeve.into_push_pull_output();
+    sleeve_pin.set_drive_strength(true);
+    sleeve_pin.set_low();
 
     let bus_allocator = unsafe {
         USB_ALLOCATOR = Some(bsp::usb_allocator(
@@ -65,11 +77,11 @@ fn main() -> ! {
         NVIC::unmask(interrupt::USB);
     }
 
-    // Flash the LED in a spin loop to demonstrate that USB is
+    // Toggle Tip pin in a spin loop to demonstrate that USB is
     // entirely interrupt driven.
     loop {
-        cycle_delay(15 * 1024 * 1024);
-        red_led.toggle().ok();
+        cycle_delay(100 * 1024 * 1024);
+        tip_pin.toggle().ok();
     }
 }
 
