@@ -1,0 +1,67 @@
+[package]
+name = "trrs_trinkey"
+version = "0.1.0"
+authors = ["Erik Fong <>"]
+description = "Board Support crate for the Adafruit TRRS Trinkey"
+keywords = ["no-std", "arm", "cortex-m", "embedded-hal"]
+categories = ["embedded", "hardware-support", "no-std"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/atsamd-rs/atsamd"
+readme = "README.md"
+
+[dependencies]
+bitbang-hal = "0.3"
+apa102-spi = "0.3"
+smart-leds = "0.3"
+
+[dependencies.cortex-m-rt]
+version = "0.7"
+optional = true
+
+[dependencies.atsamd-hal]
+version = "0.14"
+default-features = false
+
+[dependencies.usb-device]
+version = "0.2"
+optional = true
+
+[dev-dependencies]
+cortex-m = "0.7"
+usbd-serial = "0.1"
+panic-halt = "0.2"
+
+[features]
+# ask the HAL to enable atsamd21e support
+default = ["rt", "atsamd-hal/samd21e"]
+rt = ["cortex-m-rt", "atsamd-hal/samd21e-rt"]
+unproven = ["atsamd-hal/unproven"]
+usb = ["atsamd-hal/usb", "usb-device"]
+use_semihosting = []
+
+# for cargo flash
+[package.metadata]
+chip = "ATSAMD21E18A"
+
+[[example]]
+name = "blinky_basic"
+
+[[example]]
+name = "eic"
+
+[[example]]
+name = "pwm"
+required-features = ["unproven"]
+
+[[example]]
+name = "watchdog"
+required-features = ["unproven"]
+
+[[example]]
+name = "usb_serial"
+required-features = ["usb"]
+
+[[example]]
+name = "dotstar"
+required-features = ["unproven"]
