@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 /// This example emulates a really bad Iambic Morse Key,
-/// i.e. it is not usable because the timings are not useful presumably because of the polling rate.
+/// i.e. it is not usable because the timings are not useful presumably because of the polling rate and the ability to "interleave" the dots and dashes.
 /// That being said, when the TIP and RING_1 pins of the TRRS jack are pulled low,
 /// They give the keystrokes of '.' and '-' respectively.
 /// This example was adapted from the code at https://github.com/atsamd-rs/atsamd/blob/ef02fe3e21031da27aaef629368105962363b370/boards/itsybitsy_m0/examples/twitching_usb_mouse.rs
@@ -85,7 +85,7 @@ fn main() -> ! {
     };
 
     unsafe {
-        USB_HID = Some(HIDClass::new(bus_allocator, KeyboardReport::desc(), 60));
+        USB_HID = Some(HIDClass::new(bus_allocator, KeyboardReport::desc(), 1));
         USB_BUS = Some(
             UsbDeviceBuilder::new(bus_allocator, UsbVidPid(0x16c0, 0x27dd))
                 .strings(&[StringDescriptors::new(LangID::EN)
