@@ -67,6 +67,7 @@ rtic-monotonics = { version = "1.3.0", features = [
     "systick-10khz",
 ] }
 ssd1306 = "0.7"
+usbd-hid = "0.9.0"
 usbd-serial = "0.2"
 
 [features]
@@ -171,4 +172,8 @@ required-features = ["dma"]
 
 [[example]]
 name = "usb_echo"
+required-features = ["usb"]
+
+[[example]]
+name = "usb_hid"
 required-features = ["usb"]
