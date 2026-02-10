@@ -86,58 +86,12 @@ sdmmc = ["embedded-sdmmc", "atsamd-hal/sdmmc"]
 use_semihosting = []
 
 [[example]]
-name = "adc"
-
-[[example]]
-name = "async_adc"
-required-features = ["async"]
-
-[[example]]
-name = "async_dmac"
-required-features = ["dma", "async"]
-
-[[example]]
-name = "async_eic"
-required-features = ["async"]
-
-[[example]]
-name = "async_i2c"
-required-features = ["dma", "async"]
-
-[[example]]
-name = "async_spi"
-required-features = ["dma", "async"]
-
-[[example]]
-name = "async_timer"
-required-features = ["async"]
-
-[[example]]
-name = "async_uart"
-required-features = ["dma", "async"]
-
-[[example]]
 name = "blinky_basic"
 required-features = ["leds"]
 
 [[example]]
 name = "blinky_embassy"
-required-features = ["rtic"]
-
-[[example]]
-name = "blinky_rtic"
-required-features = ["rtic"]
-
-[[example]]
-name = "clock"
-required-features = ["usb"]
-
-[[example]]
-name = "dmac"
-required-features = ["dma"]
-
-[[example]]
-name = "eic"
+required-features = ["rtic", "leds"]
 
 [[example]]
 name = "i2c"
@@ -147,28 +101,7 @@ required-features = ["dma"]
 name = "pwm"
 
 [[example]]
-name = "sleeping_timer"
-
-[[example]]
-name = "sleeping_timer_rtc"
-
-[[example]]
-name = "spi"
-required-features = ["dma"]
-
-[[example]]
-name = "timers"
-
-[[example]]
 name = "uart"
-
-[[example]]
-name = "uart_dma_blocking"
-required-features = ["dma"]
-
-[[example]]
-name = "uart_dma_nonblocking"
-required-features = ["dma"]
 
 [[example]]
 name = "usb_echo"

@@ -14,7 +14,8 @@ use hal::time::Hertz;
 #[cfg(feature = "usb")]
 use hal::usb::{usb_device::bus::UsbBusAllocator, UsbBus};
 
-hal::bsp_peripherals!(Sercom0 { I2cSercom });
+/// I2c Put on Sercom2 since we want to leave Sercom0 for user defined operations with the TRRS Jack
+hal::bsp_peripherals!(Sercom2 { I2cSercom });
 
 /// Definitions related to pins and pin aliases
 pub mod pins {
@@ -50,14 +51,14 @@ pub mod pins {
             /// The I2C data line
             name: sda
             aliases: {
-                AlternateC: Sda
+                AlternateD: Sda
             }
         }
         PA09 {
             /// The I2C clock line
             name: scl
             aliases: {
-                AlternateC: Scl
+                AlternateD: Scl
             }
         }
 
@@ -109,7 +110,7 @@ pub fn i2c_master(
     scl: impl Into<Scl>,
 ) -> I2c {
     let gclk0 = clocks.gclk0();
-    let clock = &clocks.sercom0_core(&gclk0).unwrap();
+    let clock = &clocks.sercom2_core(&gclk0).unwrap();
     let freq = clock.freq();
     let baud = baud.into();
     let pads = i2c::Pads::new(sda.into(), scl.into());
