@@ -1,7 +1,12 @@
 # Adafruit TRRS Trinkey Board Support Crate
 
 This crate provides a type-safe API for working with the [Adafruit TRRS Trinkey
-board](https://www.adafruit.com/product/5954).
+board](https://www.adafruit.com/product/5954) ([Adafruit tutorial page](https://learn.adafruit.com/adafruit-trrs-trinkey/)).
+
+<figure>
+  <img src="https://raw.githubusercontent.com/adafruit/Adafruit-TRRS-Trinkey-PCB/refs/heads/main/Adafruit%20TRRS%20Trinkey%20PrettyPins.svg" alt="Adafruit TRRS Trinkey Pinout">
+  <figcaption>Adafruit TRRS Trinkey Pinout</figcaption>
+</figure>
 
 ## Prerequisites
 

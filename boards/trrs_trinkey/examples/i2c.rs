@@ -50,6 +50,7 @@ fn main() -> ! {
     let channels = dmac.split();
     let chan0 = channels.0.init(PriorityLevel::Lvl0);
 
+    // See the source for this function if more detailed configuration is desired.
     let mut i2c = i2c_master(
         &mut clocks,
         100.kHz(),
