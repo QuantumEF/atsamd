@@ -14,8 +14,10 @@ use hal::time::Hertz;
 #[cfg(feature = "usb")]
 use hal::usb::{usb_device::bus::UsbBusAllocator, UsbBus};
 
-/// I2c Put on Sercom2 since we want to leave Sercom0 for user defined operations with the TRRS Jack
-hal::bsp_peripherals!(Sercom2 { I2cSercom });
+hal::bsp_peripherals!(
+    /// I2c Put on Sercom2 since we want to leave Sercom0 for user defined operations with the TRRS Jack
+    Sercom2 { I2cSercom }
+);
 
 /// Definitions related to pins and pin aliases
 pub mod pins {
