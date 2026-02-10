@@ -29,3 +29,5 @@ $ cargo hf2 --features leds --release --example blinky_basic
     Finished in 0.123s
 $
 ```
+
+The `usb_hid` example is the most useful given what the intended use of the device is. If you need details about other peripherials, the examples from other boards like the `feather_m0` should be sufficient, but have not yet been explicitly tested on this board.
