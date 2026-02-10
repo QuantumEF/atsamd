@@ -9,7 +9,8 @@ use panic_halt as _;
 #[cfg(feature = "use_semihosting")]
 use panic_semihosting as _;
 
-use feather_m0 as bsp;
+use trrs_trinkey as bsp;
+use trrs_trinkey::i2c_master;
 
 use bsp::entry;
 use bsp::hal;
@@ -22,7 +23,6 @@ use hal::clock::GenericClockController;
 use hal::dmac::{DmaController, PriorityLevel};
 use hal::ehal::i2c::I2c;
 use hal::fugit::RateExtU32;
-use hal::sercom::i2c;
 
 // This example is based on the BMP388 pressure sensor. Adjust the device and
 // register addresses to your liking
@@ -45,18 +45,20 @@ fn main() -> ! {
     // Take SDA and SCL
     let (sda, scl) = (pins.sda, pins.scl);
 
-    // Setup DMA channels for later use
+    // Setup DMA channels for later use (Optional)
     let mut dmac = DmaController::init(dmac, &mut pm);
     let channels = dmac.split();
     let chan0 = channels.0.init(PriorityLevel::Lvl0);
 
-    let gclk0 = clocks.gclk0();
-    let sercom3_clock = &clocks.sercom3_core(&gclk0).unwrap();
-    let pads = i2c::Pads::new(sda, scl);
-    let mut i2c = i2c::Config::new(&pm, peripherals.sercom3, pads, sercom3_clock.freq())
-        .baud(100.kHz())
-        .enable()
-        .with_dma_channel(chan0);
+    let mut i2c = i2c_master(
+        &mut clocks,
+        100.kHz(),
+        peripherals.sercom2, //TODO: Why does this compile, but rust_analyzer does not say anything?
+        &mut pm,
+        sda,
+        scl,
+    )
+    .with_dma_channel(chan0); //Optional
 
     let mut received = [0x00; 1];
 
